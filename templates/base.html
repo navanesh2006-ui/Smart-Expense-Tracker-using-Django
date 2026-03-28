@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Expense Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #ec4899;
+            --bg-color: #f4f5f7;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-colored: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+        }
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-nav {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar-brand { 
+            font-weight: 800; 
+            font-size: 1.5rem;
+            letter-spacing: -0.02em;
+            color: #ffffff !important;
+        }
+        .nav-link {
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8) !important;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+        .nav-link:hover {
+            color: #ffffff !important;
+            transform: translateY(-1px);
+        }
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            background: var(--card-bg);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        h2, h3, h5, .card-title {
+            font-weight: 800;
+            color: #111827;
+            letter-spacing: -0.025em;
+        }
+        .btn {
+            border-radius: 8px;
+            font-weight: 600;
+            padding: 0.6rem 1.5rem;
+            transition: all 0.2s ease;
+            letter-spacing: 0.025em;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            border: none;
+            color: #fff;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            box-shadow: var(--shadow-colored);
+            transform: translateY(-2px);
+            color: #fff;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+        }
+        .btn-success:hover {
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);
+            transform: translateY(-2px);
+            color: #fff;
+        }
+        .btn-outline-secondary {
+            border-color: #e5e7eb;
+            color: var(--text-muted);
+            background-color: #fff;
+        }
+        .btn-outline-secondary:hover, .btn-outline-secondary.active {
+            background-color: #f3f4f6;
+            color: var(--text-main);
+            border-color: #d1d5db;
+        }
+        .btn-outline-danger {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        .btn-outline-danger:hover {
+            background-color: #ef4444;
+            color: #fff;
+        }
+        .table {
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            width: 100%;
+        }
+        .table th {
+            font-weight: 700;
+            color: var(--primary);
+            background-color: #eef2ff;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 1rem;
+            border: none;
+        }
+        .table th:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        .table th:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f3f4f6;
+            border-top: 1px solid #f3f4f6;
+            color: var(--text-main);
+            vertical-align: middle;
+            background-color: #fff;
+        }
+        .table td:first-child { border-left: 1px solid #f3f4f6; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        .table td:last-child { border-right: 1px solid #f3f4f6; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+        .table-hover tbody tr {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .table-hover tbody tr:hover {
+            transform: translateY(-2px) scale(1.005);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+            z-index: 10;
+            position: relative;
+        }
+        .form-control {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            background-color: #f9fafb;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+        .form-control:focus {
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+            border-color: var(--primary);
+        }
+        .badge.bg-secondary {
+            background-color: #dbeafe !important;
+            color: #1e40af;
+            border: none;
+            padding: 0.5em 0.8em;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark glass-nav mb-5">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'dashboard' %}">Smart Expense Tracker</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'add_expense' %}">Add Expense</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">Sign Up</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
